@@ -14,12 +14,12 @@ public class UserManagementController {
     @Autowired
     private UsersManagementService usersManagementService;
 
-    @PostMapping("/register")
+    @PostMapping("/auth/register")
     public ResponseEntity<UserDto> register(@RequestBody UserDto request){
         return ResponseEntity.ok(usersManagementService.createUser(request));
     }
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<UserDto> login(@RequestBody UserDto request){
         return ResponseEntity.ok(usersManagementService.login(request));
     }

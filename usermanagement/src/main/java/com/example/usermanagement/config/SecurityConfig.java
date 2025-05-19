@@ -30,26 +30,19 @@ public class SecurityConfig {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**") // Disable CSRF for H2 console
-                )
-                .headers(headers -> headers
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-                // Allow H2 console to be shown in a frame
-                )
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
+        httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers("/public/**").permitAll()
+                .authorizeHttpRequests(request-> request.requestMatchers("/auth/**", "/public/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/user/**").hasAnyAuthority("USER")
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
+                        .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")
+                        .anyRequest().authenticated())
+                .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider()).addFilterBefore(
+                        jwtFilter, UsernamePasswordAuthenticationFilter.class
+                );
         return httpSecurity.build();
     }
     @Bean
